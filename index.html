@@ -26,6 +26,30 @@
             margin: auto;
         }
 
+        .circle-container {
+            position: relative;
+            margin: auto;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #888;
+            border-radius: 50%;
+        }
+
+        .circle {
+            position: absolute;
+            border: 2px solid #333;
+            border-radius: 50%;
+            background: transparent;
+        }
+
+        .measurement-section {
+            display: none;
+            margin-top: 20px;
+        }
+
         .finger-container {
             position: relative;
             margin: 20px auto;
@@ -38,25 +62,12 @@
 
         .finger {
             position: absolute;
-            width: 50px;
-            height: 220px;
-            border-radius: 40px 40px 60px 60px;
-            background: linear-gradient(to bottom, #f8c291, #e58e26);
+            width: 60px;
+            height: 200px;
+            border-radius: 30px 30px 50px 50px; /* Arrotondato in alto */
+            background: linear-gradient(to bottom, #f8c291, #e58e26); /* Gradiente per effetto pelle */
             border: 3px solid #c56c35;
-            box-shadow: inset 0 -10px 12px rgba(0, 0, 0, 0.2), 0 5px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .finger::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            width: 70%;
-            height: 15px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 -8px 10px rgba(0, 0, 0, 0.2); /* Effetto profondità */
         }
 
         button {
@@ -84,52 +95,81 @@
     </style>
 </head>
 <body>
-    <h2>Misura la tua taglia di anello</h2>
-    <div class="container">
-        <h3>Misura il tuo dito</h3>
-        <p>Posiziona il dito sopra la sagoma.</p>
-        <div class="finger-container">
-            <div id="finger-shape" class="finger"></div>
-        </div>
-        <button onclick="changeSize(-1)">Taglia precedente</button>
-        <button onclick="changeSize(1)">Taglia successiva</button>
-        <p id="size-info" class="size-info">Taglia attuale: 5</p>
-    </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let currentSize = 5;
-            
-            const ringCircumferences = {
-                5: 155, 
-                6: 163, 
-                7: 171, 
-                8: 179, 
-                9: 187
-            };
-            
-            function updateFingerShape() {
-                let diameter = (ringCircumferences[currentSize] / Math.PI) * 0.8;
-                let fingerElement = document.getElementById("finger-shape");
-                fingerElement.style.width = `${diameter}px`;
-                document.getElementById("size-info").textContent = "Taglia attuale: " + currentSize;
-            }
-            
-            function changeSize(direction) {
-                let sizes = Object.keys(ringCircumferences).map(Number);
-                let index = sizes.indexOf(currentSize) + direction;
-                if (index >= 0 && index < sizes.length) {
-                    currentSize = sizes[index];
-                    updateFingerShape();
-                }
-            }
 
-            window.changeSize = changeSize;
-        });
+    <h2>Misura la tua taglia di anello</h2>
+
+    <div class="container">
+        <div class="calibration-section">
+            <p>Posiziona una moneta da 1€ sullo schermo e ridimensiona il cerchio in modo che combaci.</p>
+            <div class="circle-container">
+                <div id="calibration-circle" class="circle" style="width: 23mm; height: 23mm;"></div>
+            </div>
+            <button onclick="resizeCircle(true)">+</button>
+            <button onclick="resizeCircle(false)">-</button>
+            <br>
+            <button onclick="confirmCalibration()">Conferma calibrazione</button>
+        </div>
+
+        <div class="measurement-section">
+            <h3>Misura il tuo dito</h3>
+            <p>Posiziona il dito sopra la sagoma.</p>
+            <div class="finger-container">
+                <div id="finger-shape" class="finger"></div>
+            </div>
+            <button onclick="changeSize(-1)">Taglia precedente</button>
+            <button onclick="changeSize(1)">Taglia successiva</button>
+            <p id="size-info" class="size-info">Taglia attuale: 5</p>
+        </div>
+    </div>
+
+    <script>
+        let calibrationSize = 23; // Diametro in mm della moneta da 1€
+        let currentSize = 5;
+        
+        // Circonferenze delle taglie USA (in mm)
+        const ringCircumferences = {
+            5: 49.3, 
+            6: 51.8, 
+            7: 54.4, 
+            8: 56.9, 
+            9: 59.5
+        };
+
+        function resizeCircle(increase) {
+            let circle = document.getElementById("calibration-circle");
+            let currentDiameter = parseFloat(circle.style.width);
+            let newDiameter = increase ? currentDiameter + 1 : currentDiameter - 1;
+            circle.style.width = newDiameter + "mm";
+            circle.style.height = newDiameter + "mm";
+            calibrationSize = newDiameter;
+        }
+
+        function confirmCalibration() {
+            document.querySelector(".calibration-section").style.display = "none";
+            document.querySelector(".measurement-section").style.display = "block";
+            updateFingerShape();
+        }
+
+        function updateFingerShape() {
+            let scaleFactor = calibrationSize / 23; // Normalizza rispetto alla calibrazione
+            
+            // Convertire la circonferenza in diametro
+            let diameter = (ringCircumferences[currentSize] / Math.PI) * scaleFactor;
+
+            let fingerElement = document.getElementById("finger-shape");
+            fingerElement.style.width = `${diameter}mm`;
+            document.getElementById("size-info").textContent = "Taglia attuale: " + currentSize;
+        }
+
+        function changeSize(direction) {
+            let sizes = Object.keys(ringCircumferences).map(Number);
+            let index = sizes.indexOf(currentSize) + direction;
+            if (index >= 0 && index < sizes.length) {
+                currentSize = sizes[index];
+                updateFingerShape();
+            }
+        }
     </script>
+
 </body>
 </html>
-
-
-
-
-
