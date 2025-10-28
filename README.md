@@ -1,4 +1,5 @@
-💍 360Iconic – Misuratore Digitale di Dita per E-Commerce di Anelli
+360Iconic – Misuratore Digitale di Dita per E-Commerce di Anelli
+
 360Iconic è un progetto commissionato da un cliente che aiuta i siti di e-commerce di gioielli a offrire ai propri utenti un modo semplice e preciso per misurare la dimensione delle dita direttamente online, prima di acquistare un anello.
 Il sistema utilizza una visualizzazione interattiva a 360° e un’interfaccia intuitiva che guida l’utente passo-passo nella misurazione, migliorando l’esperienza d’acquisto e riducendo i resi dovuti a taglie errate.
 
